@@ -2,7 +2,7 @@ name: Build and Push Docker Images
 
 on:
   push:
-    branches: [ "main" ]  # O la rama que prefieras
+    branches: [ "main" ]
 
 jobs:
   build-and-push:
@@ -31,13 +31,18 @@ jobs:
         
         for service in "${services[@]}"
         do
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest ./$service
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest
+          service_path="./docker/$service"
+          if [ -d "$service_path" ]; then
+            echo "Building $service"
+            docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest $service_path
+            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest
+          else
+            echo "Error: Directory $service_path does not exist."
+            exit 1
+          fi
         done
 
     - name: Ejecutar Docker Compose
       uses: hoverkraft-tech/compose-action@v2.0.1
       with:
         compose-file: "./docker/docker-compose.yml"
-        
-    
