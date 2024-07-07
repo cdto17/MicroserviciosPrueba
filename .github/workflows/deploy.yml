@@ -24,14 +24,8 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
         
-    - name: Listar estructura de directorios
-      run: |
-        echo "Estructura de directorios del proyecto:"
-        find . -type d
-        
     - name: Construir y subir imágenes Docker
       run: |
-        # Lista de tus servicios
         services=("list-services" "songs-service" "video-service")
         
         for service in "${services[@]}"
@@ -39,20 +33,25 @@ jobs:
           if [ -d "$service" ]; then
             docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest ./$service
             docker push ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest
-          elif [ -d "docker/$service" ]; then
-            docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest ./docker/$service
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest
           else
             echo "No se pudo encontrar el directorio para el servicio $service"
             exit 1
           fi
         done
 
+    - name: Verificar y mostrar contenido de docker-compose.yml
+      run: |
+        if [ -f "./docker/docker-compose.yml" ]; then
+          echo "Contenido de docker-compose.yml:"
+          cat ./docker/docker-compose.yml
+        else
+          echo "No se pudo encontrar el archivo docker-compose.yml"
+          exit 1
+        fi
+
     - name: Ejecutar Docker Compose
       run: |
-        if [ -f "./docker-compose.yml" ]; then
-          docker-compose up -d
-        elif [ -f "./docker/docker-compose.yml" ]; then
+        if [ -f "./docker/docker-compose.yml" ]; then
           docker-compose -f ./docker/docker-compose.yml up -d
         else
           echo "No se pudo encontrar el archivo docker-compose.yml"
