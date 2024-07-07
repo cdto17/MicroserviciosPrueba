@@ -24,6 +24,11 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
         
+    - name: Listar estructura de directorios
+      run: |
+        echo "Estructura de directorios del proyecto:"
+        find . -type d
+        
     - name: Construir y subir imágenes Docker
       run: |
         # Lista de tus servicios
@@ -31,11 +36,25 @@ jobs:
         
         for service in "${services[@]}"
         do
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest ./$service
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest
+          if [ -d "$service" ]; then
+            docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest ./$service
+            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest
+          elif [ -d "docker/$service" ]; then
+            docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest ./docker/$service
+            docker push ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest
+          else
+            echo "No se pudo encontrar el directorio para el servicio $service"
+            exit 1
+          fi
         done
 
     - name: Ejecutar Docker Compose
-      uses: hoverkraft-tech/compose-action@v2.0.1
-      with:
-        compose-file: "./docker/docker-compose.yml"
+      run: |
+        if [ -f "./docker-compose.yml" ]; then
+          docker-compose up -d
+        elif [ -f "./docker/docker-compose.yml" ]; then
+          docker-compose -f ./docker/docker-compose.yml up -d
+        else
+          echo "No se pudo encontrar el archivo docker-compose.yml"
+          exit 1
+        fi
