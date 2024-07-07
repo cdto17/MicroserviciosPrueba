@@ -2,7 +2,7 @@ name: Build and Push Docker Images
 
 on:
   push:
-    branches: [ "main" ]  # O la rama que prefieras
+    branches: [ "main" ]
 
 jobs:
   build-and-push:
@@ -39,5 +39,3 @@ jobs:
       uses: hoverkraft-tech/compose-action@v2.0.1
       with:
         compose-file: "./docker/docker-compose.yml"
-        
-    
