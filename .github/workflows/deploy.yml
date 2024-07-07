@@ -31,11 +31,13 @@ jobs:
         
         for service in "${services[@]}"
         do
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest ./docker/$service
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest /$service
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/$service:latest
         done
 
-    - name: Construir y subir imagen de Docker Compose
-      run: |
-        docker-compose -f ./docker/docker-compose.yml build
-        docker-compose -f ./docker/docker-compose.yml push
+    - name: Ejecutar Docker Compose
+      uses: hoverkraft-tech/compose-action@v2.0.1
+      with:
+        compose-file: "./docker/docker-compose.yml"
+        
+    
