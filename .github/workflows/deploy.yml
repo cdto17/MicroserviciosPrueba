@@ -39,21 +39,12 @@ jobs:
           fi
         done
 
-    - name: Verificar y mostrar contenido de docker-compose.yml
+    - name: Corregir rutas en docker-compose.yml
       run: |
-        if [ -f "./docker/docker-compose.yml" ]; then
-          echo "Contenido de docker-compose.yml:"
-          cat ./docker/docker-compose.yml
-        else
-          echo "No se pudo encontrar el archivo docker-compose.yml"
-          exit 1
-        fi
+        sed -i 's|build: \./|build: ../|g' ./docker/docker-compose.yml
+        echo "Contenido actualizado de docker-compose.yml:"
+        cat ./docker/docker-compose.yml
 
     - name: Ejecutar Docker Compose
       run: |
-        if [ -f "./docker/docker-compose.yml" ]; then
-          docker-compose -f ./docker/docker-compose.yml up -d
-        else
-          echo "No se pudo encontrar el archivo docker-compose.yml"
-          exit 1
-        fi
+        docker-compose -f ./docker/docker-compose.yml up -d
