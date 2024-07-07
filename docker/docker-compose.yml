@@ -11,5 +11,5 @@ services:
   microservice-video:
    build: ./video-service
    ports:
-     - 8084:3001
+     - 8094:3001
 
