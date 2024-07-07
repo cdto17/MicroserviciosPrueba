@@ -12,3 +12,4 @@ services:
    build: ./video-service
    ports:
      - 8084:3001
+
