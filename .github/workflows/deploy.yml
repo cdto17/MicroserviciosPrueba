@@ -27,7 +27,7 @@ jobs:
     - name: Construir y subir imágenes Docker
       run: |
         # Lista de tus servicios
-        services=("list-services" "songs-services" "video-service")
+        services=("list-services" "songs-service" "video-service")
         
         for service in "${services[@]}"
         do
